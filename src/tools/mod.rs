@@ -1,2 +1,2 @@
 pub mod dfa;
-pub use dfa::DFA;
+pub use dfa::{DFA, State, Symbol};

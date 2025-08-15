@@ -1,7 +1,7 @@
 use std::collections::{BTreeSet, BTreeMap};
 
-type State = &'static str;
-type Symbol = char;
+pub type State = &'static str;
+pub type Symbol = char;
 
 // A DFA represented by:
 // - Q: set of states
