@@ -1,12 +1,12 @@
-q, Block
-down, Down
-w, Flip Stance
-left, Left
-right, Right
-e, Tag
-a, Throw
-up, Up
-s, [BK]
-d, [BP]
-z, [FK]
-x, [FP]
+w, Up
+a, Left
+s, Down
+d, Right
+p, Block
+f, Flip Stance
+u, Tag
+j, Throw
+i, [BK]
+o, [BP]
+k, [FK]
+l, [FP]

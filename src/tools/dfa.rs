@@ -1,6 +1,6 @@
 use std::collections::{BTreeSet, BTreeMap};
 
-pub type State = &'static str;
+pub type State = String;
 pub type Symbol = char;
 
 // A DFA represented by:
@@ -36,7 +36,7 @@ impl DFA {
         // Build a map for quick lookup; also sanity-check determinism:
         let mut delta_map = BTreeMap::new();
         for (key, next) in &delta_set {
-            if let Some(prev) = delta_map.insert(*key, *next) {
+            if let Some(prev) = delta_map.insert(key.clone(), next.clone()) {
                 panic!(
                     "Non-deterministic transitions specified: {:?} -> {:?} and {:?}",
                     key, prev, next
@@ -58,12 +58,12 @@ impl DFA {
 
     // δ(q, a)
     fn delta(&self, q: State, a: Symbol) -> Option<State> {
-        self.delta_map.get(&(q, a)).copied()
+        self.delta_map.get(&(q, a)).cloned()
     }
 
     // Extended δ on strings
     fn run(&self, input: &str) -> Option<State> {
-        let mut q = self.start;
+        let mut q = self.start.clone();
         for c in input.chars() {
             q = self.delta(q, c)?;
         }
@@ -72,7 +72,7 @@ impl DFA {
 
     pub fn accepts(&self, input: &str) -> bool {
         match self.run(input) {
-            Some(qf) => self.accept.contains(qf),
+            Some(qf) => self.accept.contains(&qf),
             None => false,
         }
     }
