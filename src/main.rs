@@ -3,7 +3,7 @@ use std::process;
 use std::sync::{Arc, Mutex};
 
 mod tools;
-use tools::{parse_grammar_file, run_input_loop, DFA, DFAConfig};
+use tools::{parse_grammar_file, run_input_loop, run_console_mode, DFA, DFAConfig};
 
 /// Simple token buffer for tracking recent input
 struct TokenBuffer {
@@ -36,14 +36,23 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        eprintln!("Usage: {} <grammar_file.gmr> [--debug]", args[0]);
-        eprintln!("Example: {} grammars/mk9.gmr", args[0]);
-        eprintln!("         {} grammars/mk9.gmr --debug", args[0]);
+        eprintln!("Usage: {} <grammar_file.gmr> [OPTIONS]", args[0]);
+        eprintln!();
+        eprintln!("Options:");
+        eprintln!("  --gui      Enable graphical SDL window (optional)");
+        eprintln!("  --debug    Enable debug mode with state transition tracing (optional)");
+        eprintln!();
+        eprintln!("Examples:");
+        eprintln!("  {} grammars/mk9.gmr", args[0]);
+        eprintln!("  {} grammars/mk9.gmr --debug", args[0]);
+        eprintln!("  {} grammars/mk9.gmr --gui", args[0]);
+        eprintln!("  {} grammars/mk9.gmr --gui --debug", args[0]);
         process::exit(1);
     }
 
     let grammar_path = &args[1];
     let debug_mode = args.iter().any(|arg| arg == "--debug");
+    let gui_mode = args.iter().any(|arg| arg == "--gui");
 
     // Parse the grammar file
     let grammar = match parse_grammar_file(grammar_path) {
@@ -80,8 +89,8 @@ fn main() {
     let current_state_clone = Arc::clone(&current_state);
     let token_buffer_clone = Arc::clone(&token_buffer);
 
-    // Run input loop with DFA integration
-    if let Err(e) = run_input_loop(&grammar, move |ch, token_name| {
+    // Define the token processing callback
+    let process_token = move |ch: char, token_name: &str| {
         // Add token to buffer
         {
             let mut buffer = token_buffer_clone.lock().unwrap();
@@ -96,13 +105,13 @@ fn main() {
         let (next_state, matches) = dfa.step(&state, ch, token_name, &config);
 
         if let Some(next) = next_state {
-            // Valid transition
-            *state = next;
+            // Valid transition - clone only when we need to update state
+            *state = next.clone();
 
             // Print matched moves
             if !matches.is_empty() {
                 println!();  // New line after token
-                for move_name in &matches {
+                for move_name in matches {
                     println!("{} !!", move_name);
                 }
             } else {
@@ -117,15 +126,26 @@ fn main() {
             // Try from start state with this token
             let (next_state2, matches2) = dfa.step(&state, ch, token_name, &config);
             if let Some(next2) = next_state2 {
-                *state = next2;
+                *state = next2.clone();
                 if !matches2.is_empty() {
-                    for move_name in &matches2 {
+                    for move_name in matches2 {
                         println!("{} !!", move_name);
                     }
                 }
             }
         }
-    }) {
+    };
+
+    // Run the appropriate input mode based on GUI flag
+    let result = if gui_mode {
+        println!("Starting GUI mode (SDL window)...");
+        run_input_loop(&grammar, process_token)
+    } else {
+        println!("Starting console mode (text input)...");
+        run_console_mode(&grammar, process_token)
+    };
+
+    if let Err(e) = result {
         eprintln!("Error running input loop: {}", e);
         process::exit(1);
     }

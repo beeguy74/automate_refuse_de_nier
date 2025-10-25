@@ -99,8 +99,9 @@ impl DFA {
 
     /// Transition function: δ(q, a) -> q'
     /// Returns None if no transition exists
-    pub fn delta(&self, q: &State, a: Symbol) -> Option<State> {
-        self.delta_map.get(&(q.clone(), a)).cloned()
+    /// Optimized to avoid unnecessary clones in hot path
+    pub fn delta(&self, q: &State, a: Symbol) -> Option<&State> {
+        self.delta_map.get(&(q.clone(), a))
     }
 
     /// Check if a state is an accept state and return the moves that match
@@ -110,30 +111,31 @@ impl DFA {
 
     /// Process a single symbol from a given state, with optional debug output
     /// Returns (new_state, matched_moves)
-    pub fn step(&self, current: &State, symbol: Symbol, token_name: &str, config: &DFAConfig) -> (Option<State>, Vec<String>) {
+    /// Optimized to minimize allocations in the hot path
+    pub fn step(&self, current: &State, symbol: Symbol, token_name: &str, config: &DFAConfig) -> (Option<&State>, &[String]) {
         let next = self.delta(current, symbol);
 
         if config.debug {
-            if let Some(ref next_state) = next {
+            if let Some(next_state) = next {
                 println!("State {}, \"{}\" -> State {}", current, token_name, next_state);
             } else {
                 println!("State {}, \"{}\" -> <no transition>", current, token_name);
             }
         }
 
-        let matches = if let Some(ref next_state) = next {
+        let matches = if let Some(next_state) = next {
             if let Some(moves) = self.get_matches(next_state) {
                 if config.debug {
                     for move_name in moves {
                         println!("Found end state for \"{}\" at: {}", move_name, next_state);
                     }
                 }
-                moves.clone()
+                moves.as_slice()
             } else {
-                Vec::new()
+                &[]
             }
         } else {
-            Vec::new()
+            &[]
         };
 
         (next, matches)

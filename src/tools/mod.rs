@@ -3,4 +3,5 @@ pub use dfa::{DFA, DFAConfig};
 pub mod parsing;
 pub use parsing::{parse_grammar_file, Grammar};
 pub mod keycatcher;
-pub use keycatcher::run_input_loop;
+pub use keycatcher::{run_input_loop, run_console_mode};
+pub mod ui;

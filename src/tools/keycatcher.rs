@@ -5,6 +5,7 @@ use sdl2::event::Event;
 use std::time::Duration;
 use sdl2::keyboard::Keycode;
 use crate::tools::parsing::Grammar;
+use crate::tools::ui;
 
 /// Represents an input event from keyboard or gamepad
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -89,10 +90,17 @@ where
     let sdl_context = sdl2::init().map_err(|e| format!("SDL init failed: {}", e))?;
     let video_subsystem = sdl_context.video().map_err(|e| format!("Video subsystem failed: {}", e))?;
 
-    let _window = video_subsystem.window("ft_ality - Fighting Game Training Mode", 800, 600)
+    let (width, height) = ui::get_window_size();
+    let window = video_subsystem.window("ft_ality - Fighting Game Training Mode", width, height)
         .position_centered()
         .build()
         .map_err(|e| format!("Window creation failed: {}", e))?;
+
+    let mut canvas = window.into_canvas().build()
+        .map_err(|e| format!("Canvas creation failed: {}", e))?;
+
+    // Initial render of key mappings
+    ui::render_key_mappings(&mut canvas, grammar);
 
     let mut event_pump = sdl_context.event_pump().map_err(|e| format!("Event pump failed: {}", e))?;
 
@@ -119,9 +127,37 @@ where
     Ok(())
 }
 
-/// Simple demo function that prints tokens as they are pressed
-pub fn run_demo(grammar: &Grammar) -> Result<(), Box<dyn Error>> {
-    run_input_loop(grammar, |_ch, token_name| {
-        println!("[{}]", token_name);
-    })
+/// Console-only input mode (no SDL GUI)
+/// Reads input from stdin line by line
+pub fn run_console_mode<F>(grammar: &Grammar, mut on_token: F) -> Result<(), Box<dyn Error>>
+where
+    F: FnMut(char, &str),
+{
+    use std::io::{self, BufRead};
+
+    println!("Console mode - enter tokens (single characters) or 'quit' to exit:");
+    println!("Valid keys: {}", grammar.mappings.keys()
+        .map(|k| k.to_string())
+        .collect::<Vec<_>>()
+        .join(", "));
+    println!();
+
+    let stdin = io::stdin();
+    for line in stdin.lock().lines() {
+        let line = line?;
+        let line = line.trim();
+
+        if line.eq_ignore_ascii_case("quit") || line.eq_ignore_ascii_case("exit") {
+            break;
+        }
+
+        // Process each character in the line
+        for ch in line.chars() {
+            if let Some(token_name) = grammar.get_token_for_key(ch) {
+                on_token(ch, token_name);
+            }
+        }
+    }
+
+    Ok(())
 }

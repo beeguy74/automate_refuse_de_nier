@@ -1,7 +1,15 @@
 [package]
 name = "automate_refuse_de_nier"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
+
+[lib]
+name = "automate_refuse_de_nier"
+path = "src/lib.rs"
+
+[[bin]]
+name = "automate_refuse_de_nier"
+path = "src/main.rs"
 
 [dependencies]
 sdl2 = "0.38.0"
