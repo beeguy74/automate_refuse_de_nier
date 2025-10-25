@@ -6,7 +6,7 @@ all: build
 
 build:
 	@echo "Building ft_ality in development mode..."
-	cargo build
+	RUSTFLAGS=-Awarnings cargo build
 
 clean:
 	@echo "Cleaning build artifacts..."

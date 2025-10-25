@@ -37,7 +37,7 @@ pub fn render_key_mappings(canvas: &mut Canvas<Window>, grammar: &Grammar) {
 
     // Key mappings area
     canvas.set_draw_color(Color::RGB(40, 40, 60));
-    let mut y_offset = 100;
+    let y_offset = 100;
     let row_height = 30;
     let mappings_count = grammar.mappings.len().min(15); // Limit display
 
