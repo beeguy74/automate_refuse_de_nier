@@ -26,9 +26,6 @@ impl TokenBuffer {
         }
     }
 
-    fn clear(&mut self) {
-        self.tokens.clear();
-    }
 }
 
 fn main() {
