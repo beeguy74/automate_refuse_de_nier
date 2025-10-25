@@ -3,7 +3,7 @@ use std::process;
 use std::sync::{Arc, Mutex};
 
 mod tools;
-use tools::{parse_grammar_file, run_input_loop, run_console_mode, DFA, DFAConfig};
+use tools::{parse_grammar_file, run_console_mode, run_input_loop, DFAConfig, DFA};
 
 /// Simple token buffer for tracking recent input
 struct TokenBuffer {
@@ -68,11 +68,15 @@ fn main() {
 
     // Build DFA from moves in the grammar
     let dfa = if grammar.moves.is_empty() {
-        eprintln!("Warning: No moves defined in grammar file. The DFA will not recognize any combos.");
+        eprintln!(
+            "Warning: No moves defined in grammar file. The DFA will not recognize any combos."
+        );
         eprintln!("Add move definitions like: Move Name: k e y s");
         DFA::from_moves(vec![])
     } else {
-        let move_data: Vec<_> = grammar.moves.iter()
+        let move_data: Vec<_> = grammar
+            .moves
+            .iter()
             .map(|m| (m.sequence.clone(), m.name.clone()))
             .collect();
         DFA::from_moves(move_data)
@@ -110,7 +114,7 @@ fn main() {
 
             // Print matched moves
             if !matches.is_empty() {
-                println!();  // New line after token
+                println!(); // New line after token
                 for move_name in matches {
                     println!("{} !!", move_name);
                 }
@@ -120,7 +124,7 @@ fn main() {
             }
         } else {
             // No valid transition - reset to start
-            println!();  // New line
+            println!(); // New line
             *state = dfa.start_state().clone();
 
             // Try from start state with this token

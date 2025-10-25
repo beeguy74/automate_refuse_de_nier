@@ -38,7 +38,8 @@ impl Grammar {
 
     /// Get the keyboard character for a given token name
     pub fn get_key_for_token(&self, token_name: &str) -> Option<char> {
-        self.mappings.iter()
+        self.mappings
+            .iter()
             .find(|(_, name)| name.as_str() == token_name)
             .map(|(key, _)| *key)
     }
@@ -75,7 +76,11 @@ pub fn parse_grammar_file<P: AsRef<Path>>(path: P) -> Result<Grammar, String> {
             let left = left.trim();
             let right = right[1..].trim(); // skip comma
             if left.len() != 1 {
-                return Err(format!("{}:{}: left side must be a single char key", path.as_ref().display(), lineno + 1));
+                return Err(format!(
+                    "{}:{}: left side must be a single char key",
+                    path.as_ref().display(),
+                    lineno + 1
+                ));
             }
             let key = left.chars().next().unwrap();
             grammar.mappings.insert(key, right.to_string());
@@ -91,22 +96,37 @@ pub fn parse_grammar_file<P: AsRef<Path>>(path: P) -> Result<Grammar, String> {
             let mut sequence = Vec::new();
             for tok in seq.split_whitespace() {
                 if tok.len() != 1 {
-                    return Err(format!("{}:{}: move token must be a single character key: '{}'", path.as_ref().display(), lineno + 1, tok));
+                    return Err(format!(
+                        "{}:{}: move token must be a single character key: '{}'",
+                        path.as_ref().display(),
+                        lineno + 1,
+                        tok
+                    ));
                 }
                 sequence.push(tok.chars().next().unwrap());
             }
-            grammar.moves.push(MoveDef { name: name.to_string(), sequence });
+            grammar.moves.push(MoveDef {
+                name: name.to_string(),
+                sequence,
+            });
             continue;
         }
 
         // Unknown line format — be lenient and try `key name` (two parts)
         let parts: Vec<&str> = line.split_whitespace().collect();
         if parts.len() == 2 && parts[0].len() == 1 {
-            grammar.mappings.insert(parts[0].chars().next().unwrap(), parts[1].to_string());
+            grammar
+                .mappings
+                .insert(parts[0].chars().next().unwrap(), parts[1].to_string());
             continue;
         }
 
-        return Err(format!("{}:{}: unrecognized line: '{}'", path.as_ref().display(), lineno + 1, line));
+        return Err(format!(
+            "{}:{}: unrecognized line: '{}'",
+            path.as_ref().display(),
+            lineno + 1,
+            line
+        ));
     }
 
     Ok(grammar)

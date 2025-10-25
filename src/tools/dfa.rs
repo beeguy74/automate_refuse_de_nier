@@ -1,4 +1,4 @@
-use std::collections::{BTreeSet, BTreeMap};
+use std::collections::{BTreeMap, BTreeSet};
 
 pub type State = String;
 pub type Symbol = char;
@@ -78,7 +78,10 @@ impl DFA {
             // current is the final state for this move
             accept.insert(current.clone());
             // Track which move(s) end at this state
-            state_moves.entry(current).or_insert_with(Vec::new).push(name);
+            state_moves
+                .entry(current)
+                .or_insert_with(Vec::new)
+                .push(name);
         }
 
         Self {
@@ -112,12 +115,21 @@ impl DFA {
     /// Process a single symbol from a given state, with optional debug output
     /// Returns (new_state, matched_moves)
     /// Optimized to minimize allocations in the hot path
-    pub fn step(&self, current: &State, symbol: Symbol, token_name: &str, config: &DFAConfig) -> (Option<&State>, &[String]) {
+    pub fn step(
+        &self,
+        current: &State,
+        symbol: Symbol,
+        token_name: &str,
+        config: &DFAConfig,
+    ) -> (Option<&State>, &[String]) {
         let next = self.delta(current, symbol);
 
         if config.debug {
             if let Some(next_state) = next {
-                println!("State {}, \"{}\" -> State {}", current, token_name, next_state);
+                println!(
+                    "State {}, \"{}\" -> State {}",
+                    current, token_name, next_state
+                );
             } else {
                 println!("State {}, \"{}\" -> <no transition>", current, token_name);
             }
@@ -141,4 +153,3 @@ impl DFA {
         (next, matches)
     }
 }
-

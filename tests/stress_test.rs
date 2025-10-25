@@ -1,6 +1,5 @@
-use automate_refuse_de_nier::tools::{DFA, DFAConfig};
+use automate_refuse_de_nier::tools::{DFAConfig, DFA};
 
-/// Simulated stress test: process 100,000 token transitions
 #[test]
 fn stress_test_dfa_performance() {
     // Create a DFA with several moves
@@ -18,7 +17,6 @@ fn stress_test_dfa_performance() {
     let mut current_state = dfa.start_state().clone();
     let test_sequence = vec!['a', 'b', 'c', 'd', 'd', 'd', 'a', 'b'];
 
-    // Process 100,000 tokens
     let iterations = 100_000;
 
     for i in 0..iterations {
@@ -35,15 +33,16 @@ fn stress_test_dfa_performance() {
         }
     }
 
-    // If we get here, the test passed (no crashes, no excessive memory)
-    println!("Stress test completed: {} transitions processed", iterations);
+    println!(
+        "Stress test completed: {} transitions processed",
+        iterations
+    );
 }
 
 #[test]
 fn benchmark_dfa_lookup() {
     use std::time::Instant;
 
-    // Create a larger DFA
     let mut moves = Vec::new();
     for i in 0..50 {
         let seq = vec!['a', (b'a' + (i % 26) as u8) as char];
@@ -73,8 +72,13 @@ fn benchmark_dfa_lookup() {
 
     let duration = start.elapsed();
     println!("Benchmark: {} transitions in {:?}", iterations, duration);
-    println!("Average: {:.2} ns/transition", duration.as_nanos() as f64 / iterations as f64);
+    println!(
+        "Average: {:.2} ns/transition",
+        duration.as_nanos() as f64 / iterations as f64
+    );
 
-    // Assert reasonable performance (should be well under 1 microsecond per transition)
-    assert!(duration.as_micros() < iterations, "DFA transitions too slow");
+    assert!(
+        duration.as_micros() < iterations,
+        "DFA transitions too slow"
+    );
 }
