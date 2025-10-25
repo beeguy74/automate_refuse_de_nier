@@ -19,12 +19,13 @@ test:
 
 
 run: build
+	@echo "Running console mode with debug tracing enabled..."
+	./target/debug/automate_refuse_de_nier grammars/mk9_with_moves.gmr --debug
+
+debug: build
 	@echo "Running in console mode with mk9_with_moves.gmr..."
 	./target/debug/automate_refuse_de_nier grammars/mk9_with_moves.gmr
 
-debug: build
-	@echo "Running console mode with debug tracing enabled..."
-	./target/debug/automate_refuse_de_nier grammars/mk9_with_moves.gmr --debug
 
 gui: build
 	@echo "Running with GUI mode (SDL window)..."
