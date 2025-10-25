@@ -1,24 +1,36 @@
-use std::{array, collections::BTreeSet};
-mod tools;
-use tools::{DFA, State, Symbol, parsing, run};
+use std::env;
+use std::process;
 
+mod tools;
+use tools::{parse_grammar_file, run_demo};
 
 fn main() {
-    // Example DFA over {a,b} that accepts strings ending with 'a'
-    // States: q0 (start, non-accept), q1 (accept)
-    // δ:
-    //   (q0, 'a') -> q1
-    //   (q0, 'b') -> q0
-    //   (q1, 'a') -> q1
-    //   (q1, 'b') -> q0
-    // let (states, alphabet, delta_set, start, accept) = parsing();
-    // let dfa = DFA::new(
-    //     states, alphabet, delta_set, start, accept
-    // );
+    // Get grammar file from command line arguments
+    let args: Vec<String> = env::args().collect();
 
-    // let tests = ["", "a", "w", "t", "wa", "add", "asda", "auia"];
-    // for s in tests {
-    //     println!("{s:5} -> accepts? {}", dfa.accepts(s));
-    // }
-    run();
+    if args.len() < 2 {
+        eprintln!("Usage: {} <grammar_file.gmr>", args[0]);
+        eprintln!("Example: {} grammars/mk9.gmr", args[0]);
+        process::exit(1);
+    }
+
+    let grammar_path = &args[1];
+
+    // Parse the grammar file
+    let grammar = match parse_grammar_file(grammar_path) {
+        Ok(g) => g,
+        Err(e) => {
+            eprintln!("Error parsing grammar file: {}", e);
+            process::exit(1);
+        }
+    };
+
+    // Display key mappings automatically derived from grammar
+    grammar.display_key_mappings();
+
+    // Run the input handling demo
+    if let Err(e) = run_demo(&grammar) {
+        eprintln!("Error running input loop: {}", e);
+        process::exit(1);
+    }
 }

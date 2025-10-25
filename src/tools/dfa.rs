@@ -56,6 +56,57 @@ impl DFA {
         }
     }
 
+    /// Build a DFA from a collection of moves. Each move is a pair of (sequence, name).
+    /// The DFA will have a start state named "q0" and new states named "q1", "q2", ...
+    /// Shared prefixes among moves will reuse states so the automaton is compact and deterministic.
+    pub fn from_moves<I>(moves: I) -> Self
+    where
+        I: IntoIterator<Item = (Vec<Symbol>, String)>,
+    {
+        let mut states = BTreeSet::new();
+        let mut alphabet = BTreeSet::new();
+        let mut delta_map: BTreeMap<(State, Symbol), State> = BTreeMap::new();
+        let mut delta_set = BTreeSet::new();
+        let mut accept = BTreeSet::new();
+
+        let start = "q0".to_string();
+        states.insert(start.clone());
+
+        // counter for new states
+        let mut next_id: usize = 1;
+
+        for (seq, _name) in moves.into_iter() {
+            let mut current = start.clone();
+            for sym in seq.into_iter() {
+                alphabet.insert(sym);
+                // if transition exists, follow it; otherwise create a new state
+                if let Some(existing) = delta_map.get(&(current.clone(), sym)) {
+                    current = existing.clone();
+                    continue;
+                }
+
+                let new_state = format!("q{}", next_id);
+                next_id += 1;
+                // insert transition
+                delta_map.insert((current.clone(), sym), new_state.clone());
+                delta_set.insert(((current.clone(), sym), new_state.clone()));
+                states.insert(new_state.clone());
+                current = new_state;
+            }
+            // current is the final state for this move
+            accept.insert(current.clone());
+        }
+
+        Self {
+            states,
+            alphabet,
+            delta_set,
+            start,
+            accept,
+            delta_map,
+        }
+    }
+
     // δ(q, a)
     fn delta(&self, q: State, a: Symbol) -> Option<State> {
         self.delta_map.get(&(q, a)).cloned()
