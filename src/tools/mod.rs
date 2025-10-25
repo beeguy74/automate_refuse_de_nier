@@ -1,6 +1,6 @@
 pub mod dfa;
-pub use dfa::{DFA, State, Symbol};
+pub use dfa::{DFA, DFAConfig};
 pub mod parsing;
-pub use parsing::{parse_grammar_file, Grammar, MoveDef};
+pub use parsing::{parse_grammar_file, Grammar};
 pub mod keycatcher;
-pub use keycatcher::{run_input_loop, run_demo, InputEvent};
+pub use keycatcher::run_input_loop;

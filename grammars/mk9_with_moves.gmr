@@ -1,0 +1,23 @@
+# Mortal Kombat 9 Grammar with Moves
+# Key mappings
+w, Up
+a, Left
+s, Down
+d, Right
+p, Block
+f, Flip Stance
+u, Tag
+j, Throw
+i, [BK]
+o, [BP]
+k, [FK]
+l, [FP]
+
+# Move definitions (character: sequence)
+Claw Slam (Freddy Krueger): o
+Knockdown (Sonya): o
+Fist of Death (Liu-Kang): o
+Saibot Blast (Noob Saibot): o l
+Active Duty (Jax): o l
+Butt slam (Ermac): s s o
+Teleport Punch (Scorpion): a s l
