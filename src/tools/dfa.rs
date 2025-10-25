@@ -24,12 +24,7 @@ impl Default for DFAConfig {
 // A DFA for combo recognition that tracks which moves end at each state
 #[derive(Debug)]
 pub struct DFA {
-    states: BTreeSet<State>,
-    alphabet: BTreeSet<Symbol>,
-    // transition function as a set of ordered pairs
-    delta_set: BTreeSet<((State, Symbol), State)>,
     start: State,
-    accept: BTreeSet<State>,
     // derived: for O(1)ish lookup of δ(q,a)
     delta_map: BTreeMap<(State, Symbol), State>,
     // Maps each accept state to the list of moves that end at that state
@@ -44,15 +39,10 @@ impl DFA {
     where
         I: IntoIterator<Item = (Vec<Symbol>, String)>,
     {
-        let mut states = BTreeSet::new();
-        let mut alphabet = BTreeSet::new();
         let mut delta_map: BTreeMap<(State, Symbol), State> = BTreeMap::new();
-        let mut delta_set = BTreeSet::new();
-        let mut accept = BTreeSet::new();
         let mut state_moves: BTreeMap<State, Vec<String>> = BTreeMap::new();
 
         let start = "q0".to_string();
-        states.insert(start.clone());
 
         // counter for new states
         let mut next_id: usize = 1;
@@ -60,7 +50,6 @@ impl DFA {
         for (seq, name) in moves.into_iter() {
             let mut current = start.clone();
             for sym in seq.into_iter() {
-                alphabet.insert(sym);
                 // if transition exists, follow it; otherwise create a new state
                 if let Some(existing) = delta_map.get(&(current.clone(), sym)) {
                     current = existing.clone();
@@ -71,12 +60,9 @@ impl DFA {
                 next_id += 1;
                 // insert transition
                 delta_map.insert((current.clone(), sym), new_state.clone());
-                delta_set.insert(((current.clone(), sym), new_state.clone()));
-                states.insert(new_state.clone());
                 current = new_state;
             }
             // current is the final state for this move
-            accept.insert(current.clone());
             // Track which move(s) end at this state
             state_moves
                 .entry(current)
@@ -85,11 +71,7 @@ impl DFA {
         }
 
         Self {
-            states,
-            alphabet,
-            delta_set,
             start,
-            accept,
             delta_map,
             state_moves,
         }
