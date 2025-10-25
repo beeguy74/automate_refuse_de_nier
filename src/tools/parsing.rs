@@ -1,7 +1,15 @@
 use std::collections::BTreeMap;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
 use std::path::Path;
+use std::fs::read_to_string;
+
+
+fn read_lines<P: AsRef<Path>>(filename: P) -> Vec<String> {
+    read_to_string(filename) 
+        .unwrap()  
+        .lines()
+        .map(String::from) 
+        .collect()
+}
 
 /// A parsed grammar: mapping single-character keys to token names
 /// and a list of moves (each move has a name and a sequence of chars).
@@ -36,21 +44,13 @@ impl Grammar {
         println!("----------------------");
     }
 
-    /// Get the keyboard character for a given token name
-    pub fn get_key_for_token(&self, token_name: &str) -> Option<char> {
-        self.mappings
-            .iter()
-            .find(|(_, name)| name.as_str() == token_name)
-            .map(|(key, _)| *key)
-    }
-
     /// Get the token name for a keyboard character
     pub fn get_token_for_key(&self, key: char) -> Option<&str> {
         self.mappings.get(&key).map(|s| s.as_str())
     }
 }
 
-/// Parse a `.gmr` grammar file. Currently supports two simple line formats:
+/// Parse a `.gmr` grammar file. Currently supports two line formats:
 ///
 /// 1) key, Name
 ///    - maps a single-character `key` to a token name
@@ -59,12 +59,10 @@ impl Grammar {
 ///
 /// Lines starting with `#` or empty lines are ignored.
 pub fn parse_grammar_file<P: AsRef<Path>>(path: P) -> Result<Grammar, String> {
-    let file = File::open(&path).map_err(|e| format!("open {}: {}", path.as_ref().display(), e))?;
-    let reader = BufReader::new(file);
     let mut grammar = Grammar::new();
 
-    for (lineno, line) in reader.lines().enumerate() {
-        let line = line.map_err(|e| format!("read {}: {}", path.as_ref().display(), e))?;
+    // for (lineno, line) in reader.lines().enumerate() {
+    for (lineno, line) in read_lines(path).iter().enumerate() {
         let line = line.trim();
         if line.is_empty() || line.starts_with('#') {
             continue;
@@ -77,8 +75,7 @@ pub fn parse_grammar_file<P: AsRef<Path>>(path: P) -> Result<Grammar, String> {
             let right = right[1..].trim(); // skip comma
             if left.len() != 1 {
                 return Err(format!(
-                    "{}:{}: left side must be a single char key",
-                    path.as_ref().display(),
+                    "{}: left side must be a single char key",
                     lineno + 1
                 ));
             }
@@ -97,8 +94,7 @@ pub fn parse_grammar_file<P: AsRef<Path>>(path: P) -> Result<Grammar, String> {
             for tok in seq.split_whitespace() {
                 if tok.len() != 1 {
                     return Err(format!(
-                        "{}:{}: move token must be a single character key: '{}'",
-                        path.as_ref().display(),
+                        "{}: move token must be a single character key: '{}'",
                         lineno + 1,
                         tok
                     ));
@@ -122,8 +118,7 @@ pub fn parse_grammar_file<P: AsRef<Path>>(path: P) -> Result<Grammar, String> {
         }
 
         return Err(format!(
-            "{}:{}: unrecognized line: '{}'",
-            path.as_ref().display(),
+            "{}: unrecognized line: '{}'",
             lineno + 1,
             line
         ));
