@@ -1,0 +1,19 @@
+
+services:
+  builder:
+    # Build using the local Dockerfile which installs system deps
+    build: .
+    # Do not fix a container_name — let docker-compose create ephemeral containers.
+    working_dir: /usr/src/myapp
+    volumes:
+      - ./:/usr/src/myapp:cached
+      # Cache cargo registry and git checkout to speed up subsequent builds
+      - cargo_registry:/usr/local/cargo/registry
+      - cargo_git:/usr/local/cargo/git
+    environment:
+      # Ensure cargo uses the cached directory inside the container
+      CARGO_HOME: /usr/local/cargo
+
+volumes:
+  cargo_registry:
+  cargo_git:
