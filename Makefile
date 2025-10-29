@@ -1,5 +1,3 @@
-# Makefile for ft_ality 
-
 .PHONY: all build release clean test run debug gui gui-debug help stress fmt lint check run-file
 
 all: build
@@ -29,7 +27,6 @@ debug: build
 	@echo "Running console mode with debug tracing enabled..."
 	./target/debug/automate_refuse_de_nier grammars/mk9_with_moves.gmr --debug
 
-# Run inside the container (useful when host lacks toolchain or SDL deps)
 .PHONY: run-container debug-container
 run-container: build
 	@echo "Running in container (console mode) using cargo run..."

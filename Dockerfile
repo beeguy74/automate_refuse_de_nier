@@ -1,6 +1,5 @@
 FROM rust:1.90-bullseye
 
-# Install system build tools and SDL2 dev packages required by sdl2-sys
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        build-essential \
