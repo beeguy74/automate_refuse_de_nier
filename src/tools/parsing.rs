@@ -1,15 +1,6 @@
 use std::collections::BTreeMap;
-use std::path::Path;
 use std::fs::read_to_string;
-
-
-fn read_lines<P: AsRef<Path>>(filename: P) -> Vec<String> {
-    read_to_string(filename) 
-        .unwrap()  
-        .lines()
-        .map(String::from) 
-        .collect()
-}
+use std::path::Path;
 
 /// A parsed grammar: mapping single-character keys to token names
 /// and a list of moves (each move has a name and a sequence of chars).
@@ -60,9 +51,16 @@ impl Grammar {
 /// Lines starting with `#` or empty lines are ignored.
 pub fn parse_grammar_file<P: AsRef<Path>>(path: P) -> Result<Grammar, String> {
     let mut grammar = Grammar::new();
+    let path_ref = path.as_ref();
+    let contents = read_to_string(path_ref).map_err(|e| {
+        format!(
+            "Failed to read grammar file '{}': {}",
+            path_ref.display(),
+            e
+        )
+    })?;
 
-    // for (lineno, line) in reader.lines().enumerate() {
-    for (lineno, line) in read_lines(path).iter().enumerate() {
+    for (lineno, line) in contents.lines().enumerate() {
         let line = line.trim();
         if line.is_empty() || line.starts_with('#') {
             continue;
@@ -117,11 +115,7 @@ pub fn parse_grammar_file<P: AsRef<Path>>(path: P) -> Result<Grammar, String> {
             continue;
         }
 
-        return Err(format!(
-            "{}: unrecognized line: '{}'",
-            lineno + 1,
-            line
-        ));
+        return Err(format!("{}: unrecognized line: '{}'", lineno + 1, line));
     }
 
     Ok(grammar)

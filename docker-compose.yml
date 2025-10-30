@@ -1,0 +1,15 @@
+
+services:
+  builder:
+    build: .
+    working_dir: /usr/src/myapp
+    volumes:
+      - ./:/usr/src/myapp:cached
+      - cargo_registry:/usr/local/cargo/registry
+      - cargo_git:/usr/local/cargo/git
+    environment:
+      CARGO_HOME: /usr/local/cargo
+
+volumes:
+  cargo_registry:
+  cargo_git:

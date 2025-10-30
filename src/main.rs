@@ -94,7 +94,15 @@ fn main() {
     let process_token = move |ch: char, token_name: &str| {
         // Add token to buffer
         {
-            let mut buffer = token_buffer_clone.lock().unwrap();
+            let mut buffer = match token_buffer_clone.lock() {
+                Ok(guard) => guard,
+                Err(poisoned) => {
+                    eprintln!("Token buffer lock poisoned; attempting recovery.");
+                    let mut guard = poisoned.into_inner();
+                    guard.tokens.clear();
+                    guard
+                }
+            };
             buffer.push(ch);
         }
 
@@ -102,7 +110,15 @@ fn main() {
         print!("[{}]", token_name);
 
         // Process token through DFA
-        let mut state = current_state_clone.lock().unwrap();
+        let mut state = match current_state_clone.lock() {
+            Ok(guard) => guard,
+            Err(poisoned) => {
+                eprintln!("State lock poisoned; resetting DFA state.");
+                let mut guard = poisoned.into_inner();
+                *guard = dfa.start_state().clone();
+                guard
+            }
+        };
         let (next_state, matches) = dfa.step(&state, ch, token_name, &config);
 
         if let Some(next) = next_state {
