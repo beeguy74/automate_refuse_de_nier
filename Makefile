@@ -3,54 +3,54 @@
 all: build
 
 build:
-	@echo "Building ft_ality in development mode (using docker-compose)..."
-	# Use the builder service from docker-compose so builds run in the official rust container.
+	@echo "Building ft_ality in development mode (using docker compose)..."
+	# Use the builder service from docker compose so builds run in the official rust container.
 	# This mounts the project into the container, so the produced target/ files appear on the host.
 	# Ensure cargo bin is on PATH inside the container and run build
-	docker-compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; RUSTFLAGS=-Awarnings cargo build'
+	docker compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; RUSTFLAGS=-Awarnings cargo build'
 
 clean:
 	@echo "Cleaning build artifacts (inside builder)..."
-	docker-compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo clean'
+	docker compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo clean'
 	@rm -f *.o *~ core
 
 test:
 	@echo "Running unit tests (inside builder)..."
-	docker-compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo test'
+	docker compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo test'
 
 
 run: build
 	@echo "Running in console mode with mk9_with_moves.gmr..."
-	./target/debug/automate_refuse_de_nier grammars/mk9_with_moves.gmr
+	./target/debug/automate grammars/mk9_with_moves.gmr
 
 debug: build
 	@echo "Running console mode with debug tracing enabled..."
-	./target/debug/automate_refuse_de_nier grammars/mk9_with_moves.gmr --debug
+	./target/debug/automate grammars/mk9_with_moves.gmr --debug
 
 .PHONY: run-container debug-container
 run-container: build
 	@echo "Running in container (console mode) using cargo run..."
-	docker-compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo run -- grammars/mk9_with_moves.gmr'
+	docker compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo run -- grammars/mk9_with_moves.gmr'
 
 debug-container: build
 	@echo "Running in container (console mode) with debug tracing..."
-	docker-compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo run -- grammars/mk9_with_moves.gmr --debug'
+	docker compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo run -- grammars/mk9_with_moves.gmr --debug'
 
 gui: build
 	@echo "Running with GUI mode (SDL window)..."
-	./target/debug/automate_refuse_de_nier grammars/mk9_with_moves.gmr --gui
+	./target/debug/automate grammars/mk9_with_moves.gmr --gui
 
 gui-debug: build
 	@echo "Running with GUI and debug mode..."
-	./target/debug/automate_refuse_de_nier grammars/mk9_with_moves.gmr --gui --debug
+	./target/debug/automate grammars/mk9_with_moves.gmr --gui --debug
 
 fmt:
 	@echo "Formatting code (inside builder)..."
-	docker-compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo fmt'
+	docker compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo fmt'
 
 check:
 	@echo "Checking code (inside builder)..."
-	docker-compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo check'
+	docker compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo check'
 
 help:
 	@echo "ft_ality Makefile - Available targets:"
@@ -81,5 +81,5 @@ help:
 	@echo "  make gui                    # GUI mode"
 	@echo "  make debug                  # Console with debug"
 	@echo "  make gui-debug              # GUI with debug"
-	@echo "  ./target/debug/automate_refuse_de_nier grammars/mk9.gmr"
-	@echo "  ./target/debug/automate_refuse_de_nier grammars/mk9.gmr --gui --debug"
+	@echo "  ./target/debug/automate grammars/mk9.gmr"
+	@echo "  ./target/debug/automate grammars/mk9.gmr --gui --debug"

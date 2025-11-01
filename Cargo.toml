@@ -1,14 +1,14 @@
 [package]
-name = "automate_refuse_de_nier"
+name = "automate"
 version = "0.1.0"
 edition = "2021"
 
 [lib]
-name = "automate_refuse_de_nier"
+name = "automate"
 path = "src/lib.rs"
 
 [[bin]]
-name = "automate_refuse_de_nier"
+name = "automate"
 path = "src/main.rs"
 
 [dependencies]

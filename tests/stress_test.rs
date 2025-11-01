@@ -1,4 +1,4 @@
-use automate_refuse_de_nier::tools::{DFAConfig, DFA};
+use automate::tools::{DFAConfig, DFA};
 
 #[test]
 fn stress_test_dfa_performance() {

@@ -3,7 +3,7 @@
 version = 4
 
 [[package]]
-name = "automate_refuse_de_nier"
+name = "automate"
 version = "0.1.0"
 dependencies = [
  "sdl2",

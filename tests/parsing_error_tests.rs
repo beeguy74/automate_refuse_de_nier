@@ -1,4 +1,4 @@
-use automate_refuse_de_nier::tools::parsing::parse_grammar_file;
+use automate::tools::parsing::parse_grammar_file;
 use std::env;
 use std::fs::{self, File};
 use std::io::Write;
