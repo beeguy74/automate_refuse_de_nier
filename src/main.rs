@@ -110,7 +110,10 @@ fn main() {
         }
 
         // Print the token as it's pressed (echo input)
-        print!("[{}]", token_name);
+        print!("[{}]\n", token_name);
+        use std::io;
+        use std::io::Write;
+        io::stdout().flush().unwrap();
 
         // Process token through DFA
         let mut state = match current_state_clone.lock() {
@@ -134,9 +137,6 @@ fn main() {
                 for move_name in matches {
                     println!("{} !!", move_name);
                 }
-            } else {
-                // Continue on same line if no match
-                print!(", ");
             }
         } else {
             // No valid transition - reset to start

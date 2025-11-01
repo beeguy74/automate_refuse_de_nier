@@ -1,4 +1,4 @@
-.PHONY: all  build release clean test run debug gui gui-debug help stress fmt lint check run-file
+.PHONY: all clean test help  fmt 
 
 SRC = src/main.rs src/lib.rs src/tools/dfa.rs src/tools/keycatcher.rs src/tools/mod.rs src/tools/parsing.rs src/tools/ui.rs 
 TARGET = ./target/debug/automate
@@ -21,40 +21,6 @@ test:
 	@echo "Running unit tests (inside builder)..."
 	docker compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo test'
 
-
-run: build
-	@echo "Running in console mode with mk9_with_moves.gmr..."
-	./target/debug/automate grammars/mk9_with_moves.gmr
-
-debug: build
-	@echo "Running console mode with debug tracing enabled..."
-	./target/debug/automate grammars/mk9_with_moves.gmr --debug
-
-.PHONY: run-container debug-container
-run-container: build
-	@echo "Running in container (console mode) using cargo run..."
-	docker compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo run -- grammars/mk9_with_moves.gmr'
-
-debug-container: build
-	@echo "Running in container (console mode) with debug tracing..."
-	docker compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo run -- grammars/mk9_with_moves.gmr --debug'
-
-gui: build
-	@echo "Running with GUI mode (SDL window)..."
-	./target/debug/automate grammars/mk9_with_moves.gmr --gui
-
-gui-debug: build
-	@echo "Running with GUI and debug mode..."
-	./target/debug/automate grammars/mk9_with_moves.gmr --gui --debug
-
-fmt:
-	@echo "Formatting code (inside builder)..."
-	docker compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo fmt'
-
-check:
-	@echo "Checking code (inside builder)..."
-	docker compose run --rm builder bash -lc 'export PATH=/usr/local/cargo/bin:$$PATH; cargo check'
-
 help:
 	@echo "ft_ality Makefile - Available targets:"
 	@echo ""
@@ -66,23 +32,6 @@ help:
 	@echo "Test targets:"
 	@echo "  make test     - Run unit tests"
 	@echo ""
-	@echo "Run targets:"
-	@echo "  make run        - Run in console mode (default, no GUI)"
-	@echo "  make debug      - Run in console mode with debug tracing"
-	@echo "  make gui        - Run with SDL GUI window"
-	@echo "  make gui-debug  - Run with GUI and debug tracing"
-	@echo ""
-	@echo "Code quality:"
-	@echo "  make fmt      - Format code with rustfmt"
-	@echo "  make check    - Check code without building"
-	@echo ""
 	@echo "Other:"
 	@echo "  make help     - Display this help message"
 	@echo ""
-	@echo "Example usage:"
-	@echo "  make run                    # Console mode"
-	@echo "  make gui                    # GUI mode"
-	@echo "  make debug                  # Console with debug"
-	@echo "  make gui-debug              # GUI with debug"
-	@echo "  ./target/debug/automate grammars/mk9.gmr"
-	@echo "  ./target/debug/automate grammars/mk9.gmr --gui --debug"
