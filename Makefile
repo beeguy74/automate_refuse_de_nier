@@ -1,8 +1,11 @@
-.PHONY: all build release clean test run debug gui gui-debug help stress fmt lint check run-file
+.PHONY: all  build release clean test run debug gui gui-debug help stress fmt lint check run-file
 
-all: build
+SRC = src/main.rs src/lib.rs src/tools/dfa.rs src/tools/keycatcher.rs src/tools/mod.rs src/tools/parsing.rs src/tools/ui.rs 
+TARGET = ./target/debug/automate
 
-build:
+all: $(TARGET)
+
+${TARGET}: $(SRC)
 	@echo "Building ft_ality in development mode (using docker compose)..."
 	# Use the builder service from docker compose so builds run in the official rust container.
 	# This mounts the project into the container, so the produced target/ files appear on the host.
